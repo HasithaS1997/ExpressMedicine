@@ -23,20 +23,33 @@ import 'package:firebase_auth/firebase_auth.dart';
 enum LoginFormType { login, register }
 
 class Login extends StatefulWidget {
- 
   @override
   _LoginState createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
- 
-  // final AuthService _auth = AuthService();
-  // final _formKey = GlobalKey<FormState>();
   final LocalStorage storage = new LocalStorage('MEDICINEAPP');
   String email;
   String password;
 
   bool showSpinner = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getUser(context);
+  }
+
+  getUser(context) {
+    var token = storage.getItem('token');
+    print(token);
+    if (token == null) {
+      return print("No User");
+    }
+    return Navigator.push(
+        context, MaterialPageRoute(builder: (context) => Homepage()));
+    // return Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,21 +75,18 @@ class _LoginState extends State<Login> {
                   ),
                   Container(
                     child: Form(
-                          
                         child: Column(
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(15.0),
-                  
                           child: TextField(
                             // controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
+                            keyboardType: TextInputType.phone,
                             onChanged: (value) {
                               email = value;
                             },
-
                             decoration: InputDecoration(
-                              labelText: "Email",
+                              labelText: "Mobile Number",
                               prefixIcon: Icon(Icons.account_circle),
                               labelStyle: TextStyle(
                                   fontSize: 14, color: Colors.grey.shade400),
@@ -146,12 +156,19 @@ class _LoginState extends State<Login> {
                         style: TextStyle(color: Colors.white),
                       ),
                       onPressed: () async {
-                        setState(() {
-                          showSpinner = true;
-                        });
-                        // print(email);
+                        print(email);
                         // print(password);
+                        if (email == null) {
+                          return showAlertDialog(
+                              context, "Enter Mobile Number");
+                        }
+                        if (password == null) {
+                          return showAlertDialog(context, "Enter Password");
+                        }
                         try {
+                          setState(() {
+                            showSpinner = true;
+                          });
                           var url =
                               // passing 2 parameters first one as the base URL and other one as the
                               Uri.https("expressmedicine.tk", "/api/v1/login");
@@ -166,25 +183,36 @@ class _LoginState extends State<Login> {
                               'password': password,
                             }),
                           );
+
                           if (res.statusCode == 200) {
-                            var jsonResponse = convert.jsonDecode(res.body);
-                            print(jsonResponse);
-                            print(res.body.toString());
-                            // storage.setItem('token', jsonResponse.token);
-                            // storage.setItem('user', jsonResponse.user);
-                            Navigator.push(
+                            Map<String, dynamic> jsonResponse =
+                                jsonDecode(res.body);
+                            String userData = jsonEncode(jsonResponse['user']);
+                            await storage.setItem(
+                                'token', jsonResponse['token']);
+                            await storage.setItem('user', userData);
+                            setState(() {
+                              showSpinner = false;
+                            });
+                            return Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => Homepage()));
                           } else {
                             var jsonResponse = convert.jsonDecode(res.body);
+                            setState(() {
+                              showSpinner = false;
+                            });
                             print(jsonResponse);
-                            AlertDialog(title: Text("Sample Alert Dialog"));
+                            return showAlertDialog(context, jsonResponse);
                           }
                         } catch (e) {
                           print(e);
-
-                          AlertDialog(title: Text(" Error " + e));
+                          setState(() {
+                            showSpinner = false;
+                          });
+                          return showAlertDialog(context,
+                              "The provided credentials are incorrect.");
                         }
                       }),
                   SizedBox(height: 12.0),
@@ -213,4 +241,26 @@ class _LoginState extends State<Login> {
           ),
         ));
   }
+}
+
+showAlertDialog(BuildContext context, text) {
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Check"),
+    content: Text(text),
+    actions: <Widget>[
+      TextButton(
+        onPressed: () => Navigator.pop(context, 'OK'),
+        child: const Text('OK'),
+      ),
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }
