@@ -43,7 +43,7 @@ class _LoginState extends State<Login> {
     return Scaffold(
         appBar: AppBar(
           elevation: 0.0,
-          title: Text('Express Medicine'),
+          title: Text('LOGIN'),
         ),
         resizeToAvoidBottomInset: false,
         // ignore: missing_required_param
@@ -166,12 +166,12 @@ class _LoginState extends State<Login> {
                               'password': password,
                             }),
                           );
-
                           if (res.statusCode == 200) {
                             var jsonResponse = convert.jsonDecode(res.body);
                             print(jsonResponse);
-                            storage.setItem('token', jsonResponse.token);
-                            storage.setItem('user', jsonResponse.user);
+                            print(res.body.toString());
+                            // storage.setItem('token', jsonResponse.token);
+                            // storage.setItem('user', jsonResponse.user);
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(

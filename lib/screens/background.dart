@@ -22,22 +22,22 @@ const Background({
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Image.asset(
-              "assets/images/top.png",
-              width: size.width
-            ),
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Image.asset(
-              "assets/images/top.png",
-              width: size.width
-            ),
-          ),
+          // Positioned(
+          //   top: 0,
+          //   right: 0,
+          //   child: Image.asset(
+          //     "assets/images/top.png",
+          //     width: size.width
+          //   ),
+          // ),
+          // Positioned(
+          //   top: 0,
+          //   right: 0,
+          //   child: Image.asset(
+          //     "assets/images/top.png",
+          //     width: size.width
+          //   ),
+          // ),
           // Positioned(
           //   top: 50,
           //   right: 30,
